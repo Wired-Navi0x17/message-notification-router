@@ -18,7 +18,8 @@ __pycache__/
 .coverage
 htmlcov/
 
-# Development Artifacts & Logs
+# Development Artifacts & Submission Folders
+submission/
 artifacts/
 journey/
 garbage/
