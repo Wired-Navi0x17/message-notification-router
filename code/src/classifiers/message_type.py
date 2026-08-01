@@ -45,8 +45,9 @@ class MessageTypeClassifier:
             return "urgent"
 
         # 2.5 PAYMENT (Legitimate payment reminders, bills, dues, recharges)
-        if (semantics.is_payment or any(w in text_lower for w in ["payment due", "bill generated", "fee payment", "recharge due", "electricity bill", "dues"])) and not semantics.is_scam_suspicious:
-            return "payment"
+        if any(w in text_lower for w in ["payment due", "bill generated", "fee payment", "recharge due", "electricity bill", "pay your bill", "amount due", "pay before"]) and not any(w in text_lower for w in ["never ask for", "safety advisory", "security alert"]):
+            if not semantics.is_scam_suspicious:
+                return "payment"
 
         # 3. SPAM (Unverified high-report spam senders)
         if context.business_context and not context.business_context.is_verified and context.business_context.user_reports_30d > 5:
