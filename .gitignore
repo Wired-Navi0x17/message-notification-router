@@ -1,4 +1,4 @@
-# Environment & Virtual Virtualenvs
+# Environment & Virtual Environments
 .venv/
 env/
 venv/
@@ -12,12 +12,14 @@ __pycache__/
 *$py.class
 *.so
 
-# Caches
+# Local & Internal Caches
 .cache/
 .pytest_cache/
 .coverage
 htmlcov/
 
-# Scratch & Archives
+# Development Artifacts & Logs
+artifacts/
+journey/
 garbage/
 *.log

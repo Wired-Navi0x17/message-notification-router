@@ -55,11 +55,11 @@ class ReasonGenerator:
             else:
                 reason = "Low-priority message muted based on user preference."
 
-        # 2. Retrieve Matching Historical Evidence IDs
+        # 2. Retrieve Matching Historical Evidence IDs (semicolon-separated or 'none')
         evidence_ids = self.retriever.find_relevant_evidence_ids(msg, top_k=2)
         if evidence_ids and evidence_ids != ["none"]:
-            evidence_str = "[" + ", ".join(sorted(evidence_ids)) + "]"
+            evidence_str = "; ".join(sorted(evidence_ids))
         else:
-            evidence_str = "[]"
+            evidence_str = "none"
 
         return reason, evidence_str
