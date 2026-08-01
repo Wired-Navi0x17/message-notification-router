@@ -42,7 +42,7 @@ class SpamDetector:
             reasons.append("Forwarded promotional content.")
 
         # 2. Sender Identity Metadata Fusion (Unverified + High Reports + High Dismissals)
-        elif context.business_context and not context.business_context.is_verified:
+        if context.business_context and not context.business_context.is_verified:
             if context.business_context.user_reports_30d > 5:
                 risk_score += 0.5
                 override_type = "spam"
@@ -52,13 +52,13 @@ class SpamDetector:
                 reasons.append("User repeatedly dismissed previous messages from this sender.")
 
         # 3. Promotion Opt-Out Violation (Verified business sending unrequested promo)
-        elif context.business_context and not context.business_context.allows_promotions and semantics.is_promotion:
+        if context.business_context and not context.business_context.allows_promotions and semantics.is_promotion:
             risk_score += 0.6
             override_type = "promotion"
             reasons.append("Sender sent promotional offer despite user opt-out preference.")
 
         # 4. Group Mute State
-        elif context.group_context and context.group_context.is_group_muted_by_user and not semantics.is_urgent:
+        if context.group_context and context.group_context.is_group_muted_by_user and not semantics.is_urgent:
             risk_score += 0.4
             reasons.append("Group is muted by user and message is non-urgent.")
 

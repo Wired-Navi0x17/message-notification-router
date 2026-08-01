@@ -35,11 +35,9 @@ class GroupTrustScorer:
         else:
             score += 0.10
 
-        # Sender Admin Role Boost (+0.35)
-        # Note: If sender_user_id matches group admin or user is admin
-        is_sender_admin = False
-        if grp.is_user_admin or (sender_user_id and grp.admin_count > 0):
-            # In group context, admin updates carry higher priority
+        # Sender Admin Role Boost (+0.25)
+        is_sender_admin = grp.is_sender_admin
+        if is_sender_admin:
             score += 0.25
 
         # User Activity in Group Boost (+0.20)

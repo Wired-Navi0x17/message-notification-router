@@ -32,6 +32,7 @@ class GroupContext(BaseModel):
     group_type: str = "casual"
     is_group_muted_by_user: bool = False
     is_user_admin: bool = False
+    is_sender_admin: bool = False
     user_messages_read_30d: int = 0
     user_replies_sent_30d: int = 0
     admin_count: int = 1
@@ -72,14 +73,24 @@ class ContextBuilder:
 
     def is_time_in_dnd(self, msg_time_str: str, dnd_window_str: Optional[str]) -> bool:
         """Checks if message creation timestamp falls within user DND quiet hours (e.g. '22:00-07:00')."""
-        if not dnd_window_str or "-" not in dnd_window_str:
+        if not dnd_window_str or "-" not in dnd_window_str or not msg_time_str:
             return False
 
         try:
             parts = dnd_window_str.split("-")
             dnd_start_str, dnd_end_str = parts[0].strip(), parts[1].strip()
 
-            msg_dt = datetime.strptime(msg_time_str, "%Y-%m-%d %H:%M")
+            msg_dt = None
+            for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S.%f"):
+                try:
+                    msg_dt = datetime.strptime(msg_time_str.strip(), fmt)
+                    break
+                except ValueError:
+                    continue
+
+            if not msg_dt:
+                return False
+
             msg_t = msg_dt.time()
             start_t = datetime.strptime(dnd_start_str, "%H:%M").time()
             end_t = datetime.strptime(dnd_end_str, "%H:%M").time()
@@ -135,21 +146,24 @@ class ContextBuilder:
         g_ctx: Optional[GroupContext] = None
         if message.conversation_type.strip().lower() == "group" and message.group_id:
             grp = self.loader.groups.get(message.group_id)
-            gm = self.loader.group_members.get((message.group_id, message.user_id))
+            gm_user = self.loader.group_members.get((message.group_id, message.user_id))
+            gm_sender = self.loader.group_members.get((message.group_id, message.sender_user_id)) if message.sender_user_id else None
 
             grp_name = grp.group_name if grp else "Group Chat"
             grp_type = grp.group_type if grp else "casual"
-            is_muted = bool(gm.group_muted_by_user) if gm else False
-            is_admin = (gm.role.lower() == "admin") if gm else False
-            read_cnt = gm.messages_read_30d if gm else 0
-            reply_cnt = gm.replies_sent_30d if gm else 0
+            is_muted = bool(gm_user.group_muted_by_user) if gm_user else False
+            is_user_admin = (gm_user.role.lower() == "admin") if gm_user else False
+            is_sender_admin = (gm_sender.role.lower() == "admin") if gm_sender else False
+            read_cnt = gm_user.messages_read_30d if gm_user else 0
+            reply_cnt = gm_user.replies_sent_30d if gm_user else 0
 
             g_ctx = GroupContext(
                 group_id=message.group_id,
                 group_name=grp_name,
                 group_type=grp_type,
                 is_group_muted_by_user=is_muted,
-                is_user_admin=is_admin,
+                is_user_admin=is_user_admin,
+                is_sender_admin=is_sender_admin,
                 user_messages_read_30d=read_cnt,
                 user_replies_sent_30d=reply_cnt,
             )

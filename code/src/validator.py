@@ -68,9 +68,11 @@ class SubmissionValidator:
         if list(df.columns) != EXPECTED_COLUMNS:
             errors.append(f"Header mismatch. Expected {EXPECTED_COLUMNS}, got {list(df.columns)}")
 
-        # 2. Row count check
-        if len(df) != 110:
-            errors.append(f"Expected 110 rows in output.csv, got {len(df)}")
+        # 2. Dynamic Row count check matching dataset/messages.csv
+        messages_csv_path = self.repo_root / "dataset" / "messages.csv"
+        expected_rows = len(pd.read_csv(messages_csv_path)) if messages_csv_path.exists() else 110
+        if len(df) != expected_rows:
+            errors.append(f"Expected {expected_rows} rows in output.csv matching dataset/messages.csv, got {len(df)}")
 
         # 3. Data type and constraint checks
         for idx, row in df.iterrows():

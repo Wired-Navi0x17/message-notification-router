@@ -21,7 +21,7 @@ from code.src.retrieval.history import HistoryRetriever
 
 def run_pipeline(dataset_dir: str = "dataset", output_csv_path: str = "output.csv"):
     """Executes notification router pipeline and writes output.csv."""
-    print(f"🚀 Initializing WhatsApp Message Notification Router Pipeline...")
+    print("Initializing WhatsApp Message Notification Router Pipeline...")
     loader = DatasetLoader(dataset_dir=dataset_dir).load_all()
     history_retriever = HistoryRetriever(loader)
     router = DecisionFusionRouter(loader)
@@ -29,7 +29,7 @@ def run_pipeline(dataset_dir: str = "dataset", output_csv_path: str = "output.cs
     reason_gen = ReasonGenerator(history_retriever)
 
     messages = loader.messages
-    print(f"📥 Loaded {len(messages)} messages from {dataset_dir}/messages.csv")
+    print(f"Loaded {len(messages)} messages from {dataset_dir}/messages.csv")
 
     output_rows = []
     for msg in messages:
@@ -53,7 +53,7 @@ def run_pipeline(dataset_dir: str = "dataset", output_csv_path: str = "output.cs
 
     output_file = Path(output_csv_path).resolve()
     df_out.to_csv(output_file, index=False)
-    print(f"✅ Successfully processed {len(df_out)} rows. Output written to {output_file}")
+    print(f"Successfully processed {len(df_out)} rows. Output written to {output_file}")
 
 
 if __name__ == "__main__":

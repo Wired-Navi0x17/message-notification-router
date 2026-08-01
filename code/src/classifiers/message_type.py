@@ -44,6 +44,10 @@ class MessageTypeClassifier:
         if semantics.has_direct_user_mention and any(w in text_lower for w in ["prod review", "pulled to 3", "eod", "sorry for the last-minute", "urgent"]):
             return "urgent"
 
+        # 2.5 PAYMENT (Legitimate payment reminders, bills, dues, recharges)
+        if (semantics.is_payment or any(w in text_lower for w in ["payment due", "bill generated", "fee payment", "recharge due", "electricity bill", "dues"])) and not semantics.is_scam_suspicious:
+            return "payment"
+
         # 3. SPAM (Unverified high-report spam senders)
         if context.business_context and not context.business_context.is_verified and context.business_context.user_reports_30d > 5:
             return "spam"

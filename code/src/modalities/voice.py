@@ -60,30 +60,11 @@ class VoiceExtractor:
             meta = self.extract_voice_text(audio_path)
             return meta.transcription_text
 
-        # Fallback based on media_id
-        if "vn_002" in media_id or "002" in media_id:
-            return "Tower B water tanker is here. Water supply will shut down in 20 minutes."
-        if "vn_003" in media_id or "003" in media_id:
-            return "Call back from senior admission counsellor regarding loan verification."
         return ""
 
     def extract_voice_text(self, audio_path: str) -> VoiceNoteMetadata:
         """Transcribes speech from audio file with local caching."""
         if not audio_path or not os.path.exists(audio_path):
-            filename = os.path.basename(audio_path) if audio_path else ""
-            fallback_text = ""
-            if "vn_002" in filename:
-                fallback_text = "Tower B water tanker is here. Water supply will shut down in 20 minutes."
-            elif "vn_003" in filename:
-                fallback_text = "Call back from senior admission counsellor regarding loan verification."
-            
-            if fallback_text:
-                return VoiceNoteMetadata(
-                    audio_path=audio_path or "",
-                    transcription_text=fallback_text,
-                    extraction_status="SUCCESS_FALLBACK"
-                )
-
             return VoiceNoteMetadata(
                 audio_path=audio_path or "",
                 extraction_status="FILE_NOT_FOUND",
@@ -125,21 +106,6 @@ class VoiceExtractor:
         except Exception as e:
             if os.path.exists(wav_path):
                 os.remove(wav_path)
-
-            fallback_text = ""
-            if "vn_002" in audio_path:
-                fallback_text = "Tower B water tanker is here. Water supply will shut down in 20 minutes."
-            elif "vn_003" in audio_path:
-                fallback_text = "Call back from senior admission counsellor regarding loan verification."
-            
-            if fallback_text:
-                self.cache[cache_key] = fallback_text
-                self._save_cache()
-                return VoiceNoteMetadata(
-                    audio_path=audio_path,
-                    transcription_text=fallback_text,
-                    extraction_status="SUCCESS_FALLBACK"
-                )
 
             return VoiceNoteMetadata(
                 audio_path=audio_path,
