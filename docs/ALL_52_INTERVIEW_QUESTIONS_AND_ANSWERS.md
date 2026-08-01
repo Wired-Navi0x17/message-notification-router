@@ -1,4 +1,4 @@
-# ALL 53 MASTER HACKERRANK AI JUDGE INTERVIEW QUESTIONS & ANSWERS
+# ALL 54 MASTER HACKERRANK AI JUDGE INTERVIEW QUESTIONS & ANSWERS
 
 > **Target Interview**: 30-Minute HackerRank AI Judge Interview (Mandatory Camera On)  
 > **Graded Deliverables**: `code.zip`, `output.csv`, `chat_transcript`  
@@ -31,7 +31,7 @@
 
 ---
 
-## ❓ MASTER LIST OF ALL 53 INTERVIEW QUESTIONS & ANSWERS
+## ❓ MASTER LIST OF ALL 54 INTERVIEW QUESTIONS & ANSWERS
 
 ### Section 1: System Architecture & Purpose (Q1–Q5)
 
@@ -226,7 +226,7 @@
 
 ---
 
-### Section 11: Architectural Trade-Offs, Edge Cases & Data Matching (Q51–Q53)
+### Section 11: Architectural Trade-Offs, Edge Cases & Residual Risks (Q51–Q54)
 
 #### Q51. What are the primary architectural trade-offs in your design?
 **Answer**:
@@ -240,3 +240,10 @@
 #### Q53. Is `output.csv` generated directly from `dataset/messages.csv`?
 **Answer**:
 > *"YES! `output.csv` is generated 100% directly from `dataset/messages.csv` by running `code/main.py`. `dataset/messages.csv` contains 110 incoming message rows, and `output.csv` contains exactly 110 prediction rows matching `message_id` order 1:1. The other 12 dataset files (`users.csv`, `groups.csv`, `business_accounts.csv`, etc.) provide rich context for each incoming message."*
+
+#### Q54. What are the residual risks of your solution on a completely unseen, hidden dataset?
+**Answer**:
+> *"We identified three honest residual risks for unseen hidden data:*  
+> *1. **Offline ASR Cache Coverage**: Our bundled JSON disk cache (`code/.cache/voice_transcripts.json`) covers all voice notes in the dataset. If a hidden evaluation set contains new un-cached voice notes and the evaluation container lacks internet access, the speech recognition step safely falls back to empty media text.*  
+> *2. **Keyword Taxonomy Coverage**: Our keyword taxonomies for `payment`, `scam`, `urgent`, etc. are calibrated on the domain. Extremely novel phrasing outside the keyword sets falls back to structured context signals (DND, sender reports, group mute state) and default message categories.*  
+> *3. **Execution Entry Point**: Running `pytest` directly from the repository root can trigger Python module name shadowing because of the `code/` package directory name. Therefore, execution must follow the documented entry point: `python3 code/main.py` or `python3 code/tests/test_stage_11.py`."*
