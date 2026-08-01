@@ -10,7 +10,7 @@ Every version milestone represents a stable software increment that runs without
 
 | Phase | Description | Total Milestones | Completed | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **Phase 0** | Foundation & Pipeline Infrastructure | 12 (v0.1 – v0.12) | 2 / 12 | 🔄 In Progress |
+| **Phase 0** | Foundation & Pipeline Infrastructure | 12 (v0.1 – v0.12) | 3 / 12 | 🔄 In Progress |
 | **Phase 1** | Multimodal Understanding & Semantic Layer | 13 (v1.0 – v1.12) | 0 / 13 | ⏳ Pending |
 | **Phase 2** | Decision Engine, Fusion & Optimization | 13 (v2.0 – v2.12) | 0 / 13 | ⏳ Pending |
 
@@ -22,7 +22,7 @@ Every version milestone represents a stable software increment that runs without
 
 - [x] **v0.0-bootstrap**: Stage 0 — System verification (`tesseract`, `ffmpeg`), creation of `requirements.txt`, `.venv` activation, and git repo setup.
 - [x] **v0.1-data-engine**: Stage 1 — Unified Data Engine & CSV Loader parsing all 12 dataset CSV files into Pydantic models.
-- [ ] **v0.2-context-engine**: Stage 2 — Context Enrichment Engine (`UserContext`, `GroupContext`, `BusinessContext`).
+- [x] **v0.2-context-engine**: Stage 2 — Context Enrichment Engine (`UserContext`, `GroupContext`, `BusinessContext`, DND window parsing, domain validation).
 - [ ] **v0.3-history-retrieval**: Stage 3 — Historical Retrieval Engine & Event Graph.
 - [ ] **v0.4-multimodal-pipeline**: Stage 4 — Multimodal Extractor Pipeline (OCR & Audio Transcription).
 - [ ] **v0.5-semantic-engine**: Stage 5 — Semantic Feature & Intent Engine.
@@ -40,8 +40,8 @@ Every version milestone represents a stable software increment that runs without
 | Stage | Milestone Tag | Status | Verified Output | Commit Hash | Timestamp |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Stage 0** | `v0.0-bootstrap` | ✅ Completed | Tool binaries & `.venv` verified | `568880e` | 2026-08-01 |
-| **Stage 1** | `v0.1-data-engine` | ✅ Completed | Pydantic models & `DatasetLoader` verified | Pending Commit | 2026-08-01 |
-| **Stage 2** | `v0.2-context-engine` | ⏳ Pending | Context enrichment functional | — | — |
+| **Stage 1** | `v0.1-data-engine` | ✅ Completed | Pydantic models & `DatasetLoader` verified | `9a42efb` | 2026-08-01 |
+| **Stage 2** | `v0.2-context-engine` | ✅ Completed | `ContextBuilder`, DND parser & domain checker | Pending Commit | 2026-08-01 |
 | **Stage 3** | `v0.3-history-retrieval` | ⏳ Pending | Historical index functional | — | — |
 | **Stage 4** | `v0.4-multimodal-pipeline` | ⏳ Pending | OCR & audio transcription active | — | — |
 | **Stage 5** | `v0.5-semantic-engine` | ⏳ Pending | Intent features extracted | — | — |
