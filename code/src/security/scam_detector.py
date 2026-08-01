@@ -60,6 +60,11 @@ class ScamDetector:
                     f"does not match official brand domain ({context.business_context.official_domain})."
                 )
 
+        # 4. Young Account / Domain Age Phishing Risk
+        if context.business_context and context.business_context.account_age_days < 90 and not context.business_context.is_verified:
+            risk_score += 0.2
+            reasons.append(f"Recently registered business account ({context.business_context.account_age_days} days old).")
+
         # 4. Phishing Keywords & Fake Fee Requests
         if any(w in text_lower for w in ["reattempt fee", "account suspended", "claim prize", "winner", "account-login", "security alert"]):
             risk_score += 0.5

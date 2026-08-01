@@ -18,7 +18,7 @@ msg_060,digest,promotion,Promotional offer saved in digest for review at a conve
 msg_004,notify,event,Scheduled event reminder or operational school/transport update.,0.85,message_0005; message_0245
 msg_030,mute,promotion,Promotional offer muted due to user opt-out settings or muted group preference.,0.93,message_0025; message_0115
 msg_045,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0145; message_0146
-msg_052,mute,scam,Suspicious scam or phishing risk detected: Sender domain (talabat-refund.com) does not match official brand domain (talabat.com).,0.9,message_0159; message_0207
+msg_052,mute,scam,Suspicious scam or phishing risk detected: Sender domain (talabat-refund.com) does not match official brand domain (talabat.com). Recently registered business account (26 days old).,0.9,message_0159; message_0207
 msg_009,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0073; message_0074
 msg_071,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0197; message_0198
 msg_016,mute,scam,Suspicious scam or phishing risk detected: Contains suspicious phishing keywords or fake security alerts.,0.9,message_0024; message_0202
@@ -39,8 +39,8 @@ msg_032,digest,personal,Non-urgent personal message summarized for later reading
 msg_106,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0234; message_0376
 msg_006,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0029; message_0271
 msg_109,digest,payment,Non-urgent personal message summarized for later reading.,0.85,message_0151; message_0152
-msg_108,mute,scam,Suspicious scam or phishing risk detected: Sender domain (chase-secure-alert.com) does not match official brand domain (chase.com).,0.9,message_0093; message_0094
-msg_019,mute,scam,Suspicious scam or phishing risk detected: Sender domain (chase-secure-alert.com) does not match official brand domain (chase.com).,0.9,message_0093; message_0094
+msg_108,mute,scam,Suspicious scam or phishing risk detected: Sender domain (chase-secure-alert.com) does not match official brand domain (chase.com). Recently registered business account (24 days old).,0.9,message_0093; message_0094
+msg_019,mute,scam,Suspicious scam or phishing risk detected: Sender domain (chase-secure-alert.com) does not match official brand domain (chase.com). Recently registered business account (24 days old).,0.9,message_0093; message_0094
 msg_088,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0025; message_0050
 msg_056,notify,urgent,Direct user mention requiring immediate attention or action.,0.93,message_0226; message_0359
 msg_027,digest,promotion,Promotional offer saved in digest for review at a convenient time.,0.9,message_0033; message_0272
@@ -52,7 +52,7 @@ msg_061,mute,greeting,Social greeting in muted group saved to avoid interruption
 msg_020,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0065; message_0390
 msg_017,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0089; message_0090
 msg_058,mute,forward,Unwanted spam noise detected: Highly forwarded message with potential viral spam noise. Group is muted by user and message is non-urgent.,0.98,message_0167; message_0168
-msg_026,mute,scam,Suspicious scam or phishing risk detected: Sender domain (amazonpay-delivery.in) does not match official brand domain (amazon.in).,0.9,message_0032; message_0107
+msg_026,mute,scam,Suspicious scam or phishing risk detected: Sender domain (amazonpay-delivery.in) does not match official brand domain (amazon.in). Recently registered business account (23 days old).,0.9,message_0032; message_0107
 msg_047,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0151; message_0152
 msg_046,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0147; message_0148
 msg_042,mute,scam,Suspicious scam or phishing risk detected: Contains suspicious phishing keywords or fake security alerts.,0.9,message_0058; message_0140
@@ -60,7 +60,7 @@ msg_079,digest,personal,Non-urgent personal message summarized for later reading
 msg_098,notify,urgent,Time-sensitive operational or emergency update requiring immediate notification.,0.93,message_0226; message_0359
 msg_037,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0001; message_0271
 msg_007,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0069; message_0070
-msg_085,mute,scam,Suspicious scam or phishing risk detected: Sender domain (hdfcbank-kyc.in) does not match official brand domain (hdfc.bank.in). Unverified sender requesting financial payment.,0.99,message_0221
+msg_085,mute,scam,Suspicious scam or phishing risk detected: Sender domain (hdfcbank-kyc.in) does not match official brand domain (hdfc.bank.in). Recently registered business account (20 days old). Unverified sender requesting financial payment.,0.99,message_0221
 msg_001,notify,urgent,Time-sensitive operational or emergency update requiring immediate notification.,0.97,message_0057; message_0139
 msg_021,digest,payment,Non-urgent personal message summarized for later reading.,0.85,message_0098; message_0271
 msg_028,mute,promotion,Unwanted spam noise detected: Sender sent promotional offer despite user opt-out preference.,0.88,message_0034; message_0112
@@ -83,8 +83,8 @@ msg_053,digest,forward,Forwarded message routed to digest or muted based on user
 msg_059,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0023; message_0045
 msg_024,mute,promotion,Unwanted spam noise detected: Sender sent promotional offer despite user opt-out preference.,0.88,message_0103; message_0257
 msg_072,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0023; message_0045
-msg_036,mute,scam,Suspicious scam or phishing risk detected: Sender domain (razorpayx-payouts.com) does not match official brand domain (razorpayx.com).,0.9,message_0127; message_0283
-msg_076,mute,scam,Suspicious scam or phishing risk detected: Sender domain (talabat-refund.com) does not match official brand domain (talabat.com).,0.9,message_0159; message_0207
+msg_036,mute,scam,Suspicious scam or phishing risk detected: Sender domain (razorpayx-payouts.com) does not match official brand domain (razorpayx.com). Recently registered business account (34 days old).,0.9,message_0127; message_0283
+msg_076,mute,scam,Suspicious scam or phishing risk detected: Sender domain (talabat-refund.com) does not match official brand domain (talabat.com). Recently registered business account (26 days old).,0.9,message_0159; message_0207
 msg_055,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0165; message_0166
 msg_102,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0230; message_0371
 msg_080,digest,personal,Non-urgent personal message summarized for later reading.,0.85,message_0216; message_0271

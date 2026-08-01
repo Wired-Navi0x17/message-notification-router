@@ -56,7 +56,7 @@ class GroupTrustScorer:
         return GroupTrustAssessment(
             trust_score=final_score,
             is_group_muted=grp.is_group_muted_by_user,
-            is_sender_admin=grp.is_user_admin,
+            is_sender_admin=grp.is_sender_admin,
             group_type=grp.group_type,
             user_engagement_score=min(1.0, round(total_group_interactions / 20.0, 2)),
         )
