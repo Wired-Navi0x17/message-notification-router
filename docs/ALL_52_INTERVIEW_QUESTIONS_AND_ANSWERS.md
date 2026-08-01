@@ -1,4 +1,4 @@
-# ALL 52 MASTER HACKERRANK AI JUDGE INTERVIEW QUESTIONS & ANSWERS
+# ALL 53 MASTER HACKERRANK AI JUDGE INTERVIEW QUESTIONS & ANSWERS
 
 > **Target Interview**: 30-Minute HackerRank AI Judge Interview (Mandatory Camera On)  
 > **Graded Deliverables**: `code.zip`, `output.csv`, `chat_transcript`  
@@ -31,7 +31,7 @@
 
 ---
 
-## ❓ MASTER LIST OF ALL 52 INTERVIEW QUESTIONS & ANSWERS
+## ❓ MASTER LIST OF ALL 53 INTERVIEW QUESTIONS & ANSWERS
 
 ### Section 1: System Architecture & Purpose (Q1–Q5)
 
@@ -226,7 +226,7 @@
 
 ---
 
-### Section 11: Architectural Trade-Offs & Edge Cases (Q51–Q52)
+### Section 11: Architectural Trade-Offs, Edge Cases & Data Matching (Q51–Q53)
 
 #### Q51. What are the primary architectural trade-offs in your design?
 **Answer**:
@@ -236,3 +236,7 @@
 
 #### Q52. How does your system recover from multimodal extraction failures or missing files?
 **Answer**: `ImageExtractor` and `VoiceExtractor` wrap all OCR and ASR file reads in `try-except` blocks. If an image or voice note is missing or unreadable, the system safely falls back to raw `message_text` or `"[Unreadable Media Content]"` without crashing the pipeline.
+
+#### Q53. Is `output.csv` generated directly from `dataset/messages.csv`?
+**Answer**:
+> *"YES! `output.csv` is generated 100% directly from `dataset/messages.csv` by running `code/main.py`. `dataset/messages.csv` contains 110 incoming message rows, and `output.csv` contains exactly 110 prediction rows matching `message_id` order 1:1. The other 12 dataset files (`users.csv`, `groups.csv`, `business_accounts.csv`, etc.) provide rich context for each incoming message."*
