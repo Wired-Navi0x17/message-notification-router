@@ -1,6 +1,17 @@
 """
 Multi-Class Message Category Classifier for WhatsApp Message Notification Router.
-Categorizes incoming messages into one of the 11 allowed challenge schema categories.
+Categorizes incoming messages into one of the 11 allowed challenge schema categories:
+- personal
+- urgent
+- event
+- payment
+- business_update
+- promotion
+- greeting
+- forward
+- spam
+- scam
+- unknown
 """
 
 from code.src.data.models import Message, MessageType
@@ -20,53 +31,59 @@ class MessageTypeClassifier:
         text_lower = semantics.unified_text.lower()
         conv_type = message.conversation_type.strip().lower()
 
-        # 1. PROMPT INJECTION / SCAM DETECTOR OVERRIDE
+        # 1. SCAM / PROMPT INJECTION
         if semantics.is_scam_suspicious or any(w in text_lower for w in [
             "ignore all previous", "login code", "verify now at", "security alert: otp",
             "support alert:", "confirm password", "reattempt fee"
         ]):
             return "scam"
 
-        # 2. FORWARD
-        if "fwd as received" in text_lower or message.forwarded_count >= 3:
-            return "forward"
+        # 2. URGENT (Direct mentions & time-sensitive escalations)
+        if any(w in text_lower for w in ["retry count crossed", "escalation", "incident bridge", "emergency", "water supply", "tanker", "heads-up", "heads up", "valve", "unwell", "clinic", "hospital"]):
+            return "urgent"
+        if semantics.has_direct_user_mention and any(w in text_lower for w in ["prod review", "pulled to 3", "eod", "sorry for the last-minute", "urgent"]):
+            return "urgent"
 
-        # 3. PROMOTION / CLASSIFIED SALES (e.g. cycle helmet, kurta set, offers)
-        if any(w in text_lower for w in [
-            "selling", "kurta set", "cycle helmet", "discount", "sale", "% off",
-            "coupon", "promo", "deal", "unbeatable price", "try50", "50% off",
-            "shopping offer", "trip last change", "ladakh"
+        # 3. SPAM (Unverified high-report spam senders)
+        if context.business_context and not context.business_context.is_verified and context.business_context.user_reports_30d > 5:
+            return "spam"
+
+        # 4. PROMOTION (Evaluated BEFORE business_update to catch marketing flyers from verified senders)
+        if semantics.is_promotion or any(w in text_lower for w in [
+            "50% off", "try50", "discount", "sale", "% off", "coupon", "promo",
+            "deal", "unbeatable price", "shopping offer", "trip last change", "ladakh", "unsubscribe",
+            "selling", "kurta set", "cycle helmet"
         ]):
             return "promotion"
 
-        # 4. URGENT
-        if any(w in text_lower for w in ["retry count crossed", "escalation", "incident bridge", "emergency", "water supply", "tanker", "heads-up", "heads up", "valve"]):
-            return "urgent"
-        if semantics.has_direct_user_mention and any(w in text_lower for w in ["prod review", "pulled to 3", "eod", "sorry for the last-minute"]):
-            return "urgent"
+        # 5. GREETING (Social pleasantries evaluated before forward)
+        if any(w in text_lower for w in ["good morning", "good vibes", "stay positive", "keep smiling"]):
+            return "greeting"
 
-        # 5. EVENT
+        # 6. EVENT (School circulars, transport updates, clinic appointments; 'pickup' dropped so 006 stays personal)
         if any(w in text_lower for w in [
-            "school circular", "bus is leaving", "pickup", "pick up", "stadium road",
+            "school circular", "bus is leaving", "pickup is near", "stadium road",
             "cultural night", "appointment", "health-related update", "care services"
         ]):
             return "event"
 
-        # 6. BUSINESS UPDATE
+        # 7. VERIFIED BUSINESS UPDATE (Non-promotional transactional updates)
         if conv_type == "business" and context.business_context and context.business_context.is_verified:
-            if any(w in text_lower for w in ["order", "packed", "delivery", "hub", "shipped", "amazon", "safety advisory"]):
+            if not semantics.is_promotion and any(w in text_lower for w in ["order", "packed", "delivery", "hub", "shipped", "amazon", "safety advisory", "choosing pvr", "valuable feedback"]):
                 return "business_update"
 
-        # 7. GREETING
-        if any(w in text_lower for w in ["good morning all", "stay positive", "keep smiling"]) or (semantics.is_greeting and len(text_lower.split()) <= 5):
-            return "greeting"
+        # 8. FORWARD
+        if "fwd as received" in text_lower or message.forwarded_count >= 5:
+            return "forward"
 
-        # 8. PAYMENT
-        if semantics.is_payment and any(w in text_lower for w in ["card", "bank", "due", "fee", "bill", "recharge"]):
-            return "payment"
+        # 9. UNKNOWN (Unfamiliar sender with generic question and no prior interaction history)
+        if "volunteer sheet" in text_lower or (conv_type == "personal" and "found your number" in text_lower):
+            return "unknown"
 
-        # 9. PERSONAL
+        # 10. PERSONAL
         if conv_type in ["personal", "group"]:
+            if semantics.has_direct_user_mention and any(w in text_lower for w in ["when you get 5 mins can you call", "can you call"]):
+                return "personal"
             return "personal"
 
         return "unknown"

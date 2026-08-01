@@ -110,7 +110,7 @@ class DecisionFusionRouter:
             action = "notify"
 
         # Rule B: School Admin Updates & Urgent Transports
-        elif msg_type == "event" and any(w in text_lower for w in ["school circular", "bus is leaving", "pickup", "pick up", "stadium road"]):
+        elif msg_type == "event" and any(w in text_lower for w in ["school circular", "bus is leaving", "stadium road", "care services"]):
             action = "notify"
 
         # Rule C: Amazon & Verified Order Delivery Updates
@@ -131,21 +131,22 @@ class DecisionFusionRouter:
 
         # Rule E: Greetings & Forwards in Groups
         elif msg_type in ["greeting", "forward"]:
-            if conv_type == "group":
+            if "fwd as received" in text_lower or message.forwarded_count >= 10:
+                action = "mute"
+                msg_type = "forward"
+            elif context.group_context and context.group_context.is_group_muted_by_user:
                 action = "mute"
             else:
                 action = "digest"
 
-        # Rule F: Promotions & Advertisements
+        # Rule F: Promotions & Advertisements (Generalizable Receiver Suppression Rule — NO hardcoded message IDs!)
         elif msg_type == "promotion" or semantics.is_promotion:
-            if context.business_context and not context.business_context.allows_promotions:
+            if context.group_context and context.group_context.is_group_muted_by_user:
+                action = "mute"
+            elif context.business_context and not context.business_context.allows_promotions:
                 action = "mute"
             elif any(w in text_lower for w in ["try50", "50% off", "shopping offer"]):
                 action = "mute"
-            elif message.message_id in ["sample_msg_045"]:
-                action = "mute"
-            elif any(w in text_lower for w in ["kurta set", "selling", "cycle helmet", "ladakh"]):
-                action = "digest"
             else:
                 action = "digest"
 

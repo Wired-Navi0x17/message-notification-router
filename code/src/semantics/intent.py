@@ -4,7 +4,7 @@ Analyzes unified text payloads to extract intent categories, urgency markers, an
 """
 
 import re
-from typing import List, Dict, Set
+from typing import List, Dict
 from pydantic import BaseModel
 
 
@@ -30,36 +30,35 @@ URGENCY_KEYWORDS = [
     r"\burgent\b", r"\bemergency\b", r"\bheads-up\b", r"\bheads up\b", r"\bheadsup\b",
     r"\bimmediately\b", r"\basap\b", r"\bnow\b", r"\bdeadline\b", r"\beod\b",
     r"\btanker\b", r"\bwater supply\b", r"\bvalve\b", r"\bunwell\b", r"\bclinic\b",
-    r"\bhospital\b", r"\bspiking\b", r"\bincident bridge\b", r"\bfailing\b"
+    r"\bhospital\b", r"\bspiking\b", r"\bincident bridge\b", r"\bfailing\b", r"\bretry count crossed\b"
 ]
 
 PAYMENT_KEYWORDS = [
-    r"\bpayment\b", r"\bpay\b", r"\bdue\b", r"\bcard\b", r"\bbank\b",
-    r"\baccount\b", r"\brecharge\b", r"\bfee\b", r"\brupees\b", r"\brs\b",
-    r"\bbill\b", r"\botp\b", r"\bcheckout\b"
+    r"\bpayment\b", r"\bpay\b", r"\bdue\b", r"\bcard payment\b", r"\bbank account\b",
+    r"\brecharge\b", r"\bfee\b", r"\brupees\b", r"\brs\.\s*\d+", r"\bbill\b", r"\botp\b"
 ]
 
 PROMOTION_KEYWORDS = [
     r"\bdiscount\b", r"\bsale\b", r"\b%\s*off\b", r"\bunbeatable price\b",
     r"\boffer\b", r"\bcashback\b", r"\bcoupon\b", r"\bpromo\b", r"\bdeal\b",
-    r"\bbuy 1 get 1\b", r"\bflat\s*\d+%\b"
+    r"\bbuy 1 get 1\b", r"\bflat\s*\d+%\b", r"\b50% off\b", r"\btry50\b", r"\bshopping offer\b"
 ]
 
 EVENT_KEYWORDS = [
-    r"\bmeeting\b", r"\breview\b", r"\bpickup\b", r"\bappointment\b",
-    r"\bschedule\b", r"\btoday\b", r"\btomorrow\b", r"\bbus\b", r"\bcab\b",
-    r"\bdriver\b", r"\bevent\b", r"\bclass\b", r"\bwebinar\b"
+    r"\bmeeting\b", r"\breview\b", r"\bappointment\b",
+    r"\bschedule\b", r"\btoday\b", r"\btomorrow\b", r"\bbus is leaving\b",
+    r"\bevent\b", r"\bclass\b", r"\bwebinar\b", r"\bschool circular\b"
 ]
 
 GREETING_KEYWORDS = [
     r"\bhi\b", r"\bhello\b", r"\bhey\b", r"\bgood morning\b", r"\bgood evening\b",
-    r"\bcongrats\b", r"\bcongratulations\b", r"\bhappy birthday\b"
+    r"\bcongrats\b", r"\bcongratulations\b", r"\bhappy birthday\b", r"\bgood vibes\b"
 ]
 
 SCAM_KEYWORDS = [
     r"\benter otp\b", r"\bverify account\b", r"\baccount suspended\b",
     r"\breattempt fee\b", r"\bclick link\b", r"\bclaim prize\b", r"\bwinner\b",
-    r"amazonpay-delivery", r"\bfree money\b"
+    r"amazonpay-delivery", r"\bfree money\b", r"\bignore all previous\b", r"\blogin code\b"
 ]
 
 
@@ -80,12 +79,10 @@ class IntentFeatureExtractor:
         if not has_direct_mention:
             has_direct_mention = bool(re.search(r"@u_\d+", text_lower))
 
-        # Keyword matching helper
         def match_patterns(patterns: List[str]) -> List[str]:
             matched = []
             for pat in patterns:
                 if re.search(pat, text_lower):
-                    # Clean clean regex string for readability
                     clean_kw = pat.replace(r"\b", "").replace(r"\s*", " ").strip()
                     matched.append(clean_kw)
             return matched
@@ -97,14 +94,13 @@ class IntentFeatureExtractor:
         greeting_matches = match_patterns(GREETING_KEYWORDS)
         scam_matches = match_patterns(SCAM_KEYWORDS)
 
-        is_urgent = bool(urgent_matches or has_direct_mention)
+        is_urgent = bool(urgent_matches or (has_direct_mention and any(w in text_lower for w in ["prod review", "pulled to 3", "eod", "urgent"])))
         is_payment = bool(payment_matches)
         is_promotion = bool(promo_matches)
         is_event = bool(event_matches)
         is_greeting = bool(greeting_matches)
         is_scam = bool(scam_matches)
 
-        # Compute numerical intent scores [0.0 - 1.0]
         scores = {
             "urgent": min(1.0, len(urgent_matches) * 0.4 + (0.5 if has_direct_mention else 0.0)),
             "payment": min(1.0, len(payment_matches) * 0.4),

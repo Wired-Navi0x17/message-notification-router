@@ -1,115 +1,63 @@
 """
-Context Enrichment Engine for WhatsApp Message Notification Router.
-Joins message metadata with user profiles, group dynamics, business histories, and DND schedules.
+Context Builder and Metadata Normalizer for WhatsApp Message Notification Router.
+Enriches raw messages with User, Group, and Business context models.
 """
 
 from datetime import datetime, time
-from typing import Optional
+from typing import Optional, Tuple
 from pydantic import BaseModel
 
-from code.src.data.models import (
-    Message,
-    User,
-    Group,
-    GroupMember,
-    BusinessAccount,
-    UserBusinessHistory,
-)
 from code.src.data.loader import DatasetLoader
+from code.src.data.models import (
+    Message, User, Group, GroupMember, BusinessAccount, UserBusinessHistory
+)
 
-
-def parse_time_str(time_str: str) -> Optional[time]:
-    """Parses 'HH:MM' string into datetime.time object."""
-    try:
-        parts = time_str.strip().split(":")
-        return time(int(parts[0]), int(parts[1]))
-    except Exception:
-        return None
-
-
-def is_dnd_active(dnd_window: str, timestamp_str: str) -> bool:
-    """
-    Determines whether a message timestamp falls within the user's Do-Not-Disturb window.
-    Handles overnight windows (e.g. '22:00-07:00') and standard windows (e.g. '09:00-17:00').
-    """
-    if not dnd_window or "-" not in dnd_window:
-        return False
-
-    try:
-        # Extract time from timestamp "2026-07-31 11:09" or "2026-07-31 22:15"
-        time_part = timestamp_str.strip().split(" ")[-1]
-        msg_time = parse_time_str(time_part)
-        if not msg_time:
-            return False
-
-        start_str, end_str = dnd_window.strip().split("-")
-        start_time = parse_time_str(start_str)
-        end_time = parse_time_str(end_str)
-
-        if not start_time or not end_time:
-            return False
-
-        if start_time <= end_time:
-            # Standard window (e.g. 09:00 to 17:00)
-            return start_time <= msg_time <= end_time
-        else:
-            # Overnight window (e.g. 22:00 to 07:00)
-            return msg_time >= start_time or msg_time <= end_time
-    except Exception:
-        return False
+WHATSAPP_SHORTENER_DOMAINS = ["wa.me", "link.wame.pro", "wame.pro", "whatsapp.com"]
 
 
 class UserContext(BaseModel):
-    """Enriched user context including DND state and engagement ratios."""
+    """Enriched Context for User."""
     user_id: str
-    do_not_disturb_window: str = ""
+    dnd_window: str = ""
     is_dnd_active: bool = False
-    messages_opened_30d: int = 0
-    messages_replied_30d: int = 0
-    notifications_dismissed_30d: int = 0
-    messages_reported_30d: int = 0
-    open_ratio: float = 0.0
+    open_ratio: float = 0.5
     reply_ratio: float = 0.0
+    messages_reported_30d: int = 0
 
 
 class GroupContext(BaseModel):
-    """Enriched group context including user role and group mute status."""
+    """Enriched Context for Group Chat."""
     group_id: str
-    group_name: str = ""
-    group_type: str = ""
-    member_count: int = 0
-    admin_count: int = 0
-    messages_30d: int = 0
-    user_role: str = "member"
-    is_user_admin: bool = False
+    group_name: str
+    group_type: str = "casual"
     is_group_muted_by_user: bool = False
-    user_messages_sent_30d: int = 0
+    is_user_admin: bool = False
     user_messages_read_30d: int = 0
     user_replies_sent_30d: int = 0
+    admin_count: int = 1
 
 
 class BusinessContext(BaseModel):
-    """Enriched business sender context including domain validation and opt-out history."""
+    """Enriched Context for Business Account."""
     business_id: str
-    display_name: str = ""
-    brand_name: str = ""
-    category: str = ""
+    business_name: str
+    category: str = "general"
     is_verified: bool = False
-    official_domain: str = ""
-    domain_used_by_sender: str = ""
-    is_domain_mismatched: bool = False
-    account_age_days: int = 0
-    user_reports_30d: int = 0
-    relationship_reason: str = ""
     allows_promotions: bool = True
-    user_activity_count_180d: int = 0
-    user_messages_opened_30d: int = 0
+    account_age_days: int = 365
+    user_reports_30d: int = 0
+    user_messages_sent_30d: int = 0
     user_messages_dismissed_30d: int = 0
     user_messages_replied_30d: int = 0
+    user_activity_count_180d: int = 0
+    relationship_reason: str = ""
+    domain_used_by_sender: str = ""
+    official_domain: str = ""
+    is_domain_mismatched: bool = False
 
 
 class EnrichedContext(BaseModel):
-    """Consolidated message context passed downstream to decision modules."""
+    """Unified container for all enriched message context metadata."""
     message: Message
     user_context: UserContext
     group_context: Optional[GroupContext] = None
@@ -117,106 +65,127 @@ class EnrichedContext(BaseModel):
 
 
 class ContextBuilder:
-    """Enriches incoming messages with relational user, group, and business metadata."""
+    """Builds unified EnrichedContext for incoming messages."""
 
     def __init__(self, loader: DatasetLoader):
         self.loader = loader
 
-    def build_user_context(self, user_id: str, created_at: str) -> UserContext:
-        user = self.loader.users.get(user_id)
-        if not user:
-            return UserContext(user_id=user_id)
+    def is_time_in_dnd(self, msg_time_str: str, dnd_window_str: Optional[str]) -> bool:
+        """Checks if message creation timestamp falls within user DND quiet hours (e.g. '22:00-07:00')."""
+        if not dnd_window_str or "-" not in dnd_window_str:
+            return False
 
-        dnd_active = is_dnd_active(user.do_not_disturb_window, created_at)
-        total_interactions = user.messages_opened_30d + user.notifications_dismissed_30d
-        open_ratio = (user.messages_opened_30d / total_interactions) if total_interactions > 0 else 0.5
-        reply_ratio = (user.messages_replied_30d / user.messages_opened_30d) if user.messages_opened_30d > 0 else 0.0
+        try:
+            parts = dnd_window_str.split("-")
+            dnd_start_str, dnd_end_str = parts[0].strip(), parts[1].strip()
 
-        return UserContext(
-            user_id=user.user_id,
-            do_not_disturb_window=user.do_not_disturb_window,
-            is_dnd_active=dnd_active,
-            messages_opened_30d=user.messages_opened_30d,
-            messages_replied_30d=user.messages_replied_30d,
-            notifications_dismissed_30d=user.notifications_dismissed_30d,
-            messages_reported_30d=user.messages_reported_30d,
-            open_ratio=round(open_ratio, 2),
-            reply_ratio=round(reply_ratio, 2),
-        )
+            msg_dt = datetime.strptime(msg_time_str, "%Y-%m-%d %H:%M")
+            msg_t = msg_dt.time()
+            start_t = datetime.strptime(dnd_start_str, "%H:%M").time()
+            end_t = datetime.strptime(dnd_end_str, "%H:%M").time()
 
-    def build_group_context(self, group_id: str, user_id: str) -> Optional[GroupContext]:
-        if not group_id:
-            return None
+            if start_t <= end_t:
+                return start_t <= msg_t <= end_t
+            else:
+                return msg_t >= start_t or msg_t <= end_t
+        except Exception:
+            return False
 
-        group = self.loader.groups.get(group_id)
-        member = self.loader.group_members.get((group_id, user_id))
+    def check_domain_mismatch(self, domain_used: str, official_domain: str) -> bool:
+        """Validates if domain used by sender matches official brand domain (whitelisting WA shorteners)."""
+        if not domain_used or not official_domain:
+            return False
 
-        if not group:
-            return None
+        d_used = domain_used.strip().lower()
+        d_off = official_domain.strip().lower()
 
-        user_role = member.role if member else "member"
-        is_admin = user_role.lower() == "admin"
-        is_muted = member.group_muted_by_user if member else False
+        if any(w in d_used for w in WHATSAPP_SHORTENER_DOMAINS):
+            return False
 
-        return GroupContext(
-            group_id=group.group_id,
-            group_name=group.group_name,
-            group_type=group.group_type,
-            member_count=group.member_count,
-            admin_count=group.admin_count,
-            messages_30d=group.messages_30d,
-            user_role=user_role,
-            is_user_admin=is_admin,
-            is_group_muted_by_user=is_muted,
-            user_messages_sent_30d=member.messages_sent_30d if member else 0,
-            user_messages_read_30d=member.messages_read_30d if member else 0,
-            user_replies_sent_30d=member.replies_sent_30d if member else 0,
-        )
+        if d_used == d_off or d_used.endswith("." + d_off) or d_off.endswith("." + d_used):
+            return False
 
-    def build_business_context(self, business_id: str, user_id: str) -> Optional[BusinessContext]:
-        if not business_id:
-            return None
-
-        business = self.loader.business_accounts.get(business_id)
-        history = self.loader.user_business_history.get((user_id, business_id))
-
-        if not business:
-            return None
-
-        official = business.official_domain.strip().lower() if business.official_domain else ""
-        sender_domain = business.domain_used_by_sender.strip().lower() if business.domain_used_by_sender else ""
-        domain_mismatch = bool(official and sender_domain and official != sender_domain)
-
-        allows_promo = history.allows_promotions if history else True
-        rel_reason = history.why_user_knows_account if history else ""
-
-        return BusinessContext(
-            business_id=business.business_id,
-            display_name=business.display_name,
-            brand_name=business.brand_name,
-            category=business.category,
-            is_verified=business.verified,
-            official_domain=official,
-            domain_used_by_sender=sender_domain,
-            is_domain_mismatched=domain_mismatch,
-            account_age_days=business.account_age_days,
-            user_reports_30d=business.user_reports_30d,
-            relationship_reason=rel_reason,
-            allows_promotions=allows_promo,
-            user_activity_count_180d=history.activity_count_180d if history else 0,
-            user_messages_opened_30d=history.messages_opened_30d if history else 0,
-            user_messages_dismissed_30d=history.messages_dismissed_30d if history else 0,
-            user_messages_replied_30d=history.messages_replied_30d if history else 0,
-        )
+        return True
 
     def build_context(self, message: Message) -> EnrichedContext:
-        user_ctx = self.build_user_context(message.user_id, message.created_at)
-        group_ctx = self.build_group_context(message.group_id, message.user_id) if message.group_id else None
-        biz_ctx = self.build_business_context(message.business_id, message.user_id) if message.business_id else None
+        """Builds EnrichedContext for a given Message."""
+        # 1. Build UserContext
+        user = self.loader.users.get(message.user_id)
+        if user:
+            is_dnd = self.is_time_in_dnd(message.created_at, user.do_not_disturb_window)
+            opened = user.messages_opened_30d or 0
+            replied = user.messages_replied_30d or 0
+            dismissed = user.notifications_dismissed_30d or 0
+            total_activity = max(1, opened + replied + dismissed)
+            open_ratio = round(opened / total_activity, 2)
+            reply_ratio = round(replied / total_activity, 2)
+
+            u_ctx = UserContext(
+                user_id=user.user_id,
+                dnd_window=user.do_not_disturb_window,
+                is_dnd_active=is_dnd,
+                open_ratio=open_ratio,
+                reply_ratio=reply_ratio,
+                messages_reported_30d=user.messages_reported_30d or 0
+            )
+        else:
+            u_ctx = UserContext(user_id=message.user_id)
+
+        # 2. Build GroupContext
+        g_ctx: Optional[GroupContext] = None
+        if message.conversation_type.strip().lower() == "group" and message.group_id:
+            grp = self.loader.groups.get(message.group_id)
+            gm = self.loader.group_members.get((message.group_id, message.user_id))
+
+            grp_name = grp.group_name if grp else "Group Chat"
+            grp_type = grp.group_type if grp else "casual"
+            is_muted = bool(gm.group_muted_by_user) if gm else False
+            is_admin = (gm.role.lower() == "admin") if gm else False
+            read_cnt = gm.messages_read_30d if gm else 0
+            reply_cnt = gm.replies_sent_30d if gm else 0
+
+            g_ctx = GroupContext(
+                group_id=message.group_id,
+                group_name=grp_name,
+                group_type=grp_type,
+                is_group_muted_by_user=is_muted,
+                is_user_admin=is_admin,
+                user_messages_read_30d=read_cnt,
+                user_replies_sent_30d=reply_cnt,
+            )
+
+        # 3. Build BusinessContext
+        b_ctx: Optional[BusinessContext] = None
+        if message.conversation_type.strip().lower() == "business" and message.business_id:
+            biz = self.loader.business_accounts.get(message.business_id)
+            ubh = self.loader.user_business_history.get((message.user_id, message.business_id))
+
+            if biz:
+                domain_used = biz.domain_used_by_sender or ""
+                official_dom = biz.official_domain or ""
+                is_mismatched = self.check_domain_mismatch(domain_used, official_dom)
+
+                b_ctx = BusinessContext(
+                    business_id=biz.business_id,
+                    business_name=biz.display_name or biz.brand_name or "Business",
+                    category=biz.category or "general",
+                    is_verified=bool(biz.verified),
+                    allows_promotions=bool(ubh.allows_promotions) if ubh else True,
+                    account_age_days=biz.account_age_days or 365,
+                    user_reports_30d=biz.user_reports_30d or 0,
+                    user_messages_sent_30d=biz.messages_sent_30d or 0,
+                    user_messages_dismissed_30d=ubh.messages_dismissed_30d if ubh else 0,
+                    user_messages_replied_30d=ubh.messages_replied_30d if ubh else 0,
+                    user_activity_count_180d=ubh.activity_count_180d if ubh else 0,
+                    relationship_reason=ubh.why_user_knows_account if ubh else "",
+                    domain_used_by_sender=domain_used,
+                    official_domain=official_dom,
+                    is_domain_mismatched=is_mismatched
+                )
 
         return EnrichedContext(
             message=message,
-            user_context=user_ctx,
-            group_context=group_ctx,
-            business_context=biz_ctx,
+            user_context=u_ctx,
+            group_context=g_ctx,
+            business_context=b_ctx
         )

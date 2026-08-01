@@ -1,7 +1,7 @@
 """
 Spam Detector for WhatsApp Message Notification Router.
 Independent risk module that identifies viral forward noise, unrequested promotional blasts,
-and opt-out violations to enforce a 'mute' override.
+and sender identity metadata anomalies to enforce a 'mute' override.
 """
 
 from pydantic import BaseModel
@@ -30,24 +30,30 @@ class SpamDetector:
     ) -> SpamRiskAssessment:
         risk_score = 0.0
         reasons = []
+        override_type: MessageType = "spam"
 
-        # 1. High Forward Count (Viral Spam)
-        if message.forwarded_count >= 10:
+        # 1. High Forward Count (Viral Spam / Forward Noise)
+        if "fwd as received" in semantics.unified_text.lower() or message.forwarded_count >= 10:
             risk_score += 0.6
+            override_type = "forward"
             reasons.append("Highly forwarded message with potential viral spam noise.")
         elif message.forwarded_count >= 5 and semantics.is_promotion:
             risk_score += 0.4
             reasons.append("Forwarded promotional content.")
 
-        # 2. Promotion Opt-Out Violation
+        # 2. Sender Identity Metadata Fusion (Unverified + High Reports + High Dismissals)
+        if context.business_context and not context.business_context.is_verified:
+            if context.business_context.user_reports_30d > 5:
+                risk_score += 0.5
+                reasons.append(f"Unverified sender with high 30-day user report history ({context.business_context.user_reports_30d} reports).")
+            if context.business_context.user_messages_dismissed_30d >= 5:
+                risk_score += 0.3
+                reasons.append("User repeatedly dismissed previous messages from this sender.")
+
+        # 3. Promotion Opt-Out Violation
         if context.business_context and not context.business_context.allows_promotions and semantics.is_promotion:
             risk_score += 0.6
             reasons.append("Sender sent promotional offer despite user opt-out preference.")
-
-        # 3. High Dismissal History
-        if context.business_context and context.business_context.user_messages_dismissed_30d >= 5 and context.business_context.user_messages_replied_30d == 0:
-            risk_score += 0.3
-            reasons.append("User repeatedly dismissed previous messages from this sender.")
 
         # 4. Group Mute State
         if context.group_context and context.group_context.is_group_muted_by_user and not semantics.is_urgent:
@@ -62,7 +68,7 @@ class SpamDetector:
                 is_spam=True,
                 risk_score=min(1.0, round(risk_score, 2)),
                 override_action="mute",
-                override_message_type="spam",
+                override_message_type=override_type,
                 reason=summary_reason
             )
 

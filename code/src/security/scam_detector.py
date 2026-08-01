@@ -4,7 +4,6 @@ High-priority security module that detects phishing, OTP theft, prompt injection
 enforcing an instant 'mute' override to protect users.
 """
 
-import re
 from pydantic import BaseModel
 from code.src.data.models import Message, ActionType, MessageType
 from code.src.context.builder import EnrichedContext
@@ -51,13 +50,15 @@ class ScamDetector:
             risk_score += 0.7
             reasons.append("Requests sensitive OTP, password, or login credentials.")
 
-        # 3. Domain Mismatch / Brand Spoofing
+        # 3. Domain Mismatch / Brand Spoofing (Whitelisted wa.me & link.wame.pro)
         if context.business_context and context.business_context.is_domain_mismatched:
-            risk_score += 0.6
-            reasons.append(
-                f"Sender domain ({context.business_context.domain_used_by_sender}) "
-                f"does not match official brand domain ({context.business_context.official_domain})."
-            )
+            domain_used = context.business_context.domain_used_by_sender.lower()
+            if not any(w in domain_used for w in ["wa.me", "link.wame.pro", "wame.pro", "whatsapp.com"]):
+                risk_score += 0.6
+                reasons.append(
+                    f"Sender domain ({context.business_context.domain_used_by_sender}) "
+                    f"does not match official brand domain ({context.business_context.official_domain})."
+                )
 
         # 4. Phishing Keywords & Fake Fee Requests
         if any(w in text_lower for w in ["reattempt fee", "account suspended", "claim prize", "winner", "account-login", "security alert"]):
