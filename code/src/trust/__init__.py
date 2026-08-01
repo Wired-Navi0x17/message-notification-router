@@ -1,1 +1,1 @@
-# Trust package module
+"""Trust & Preference Engine Package."""

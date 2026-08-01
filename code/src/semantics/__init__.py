@@ -1,1 +1,1 @@
-# Semantics package module
+"""Semantic Feature & Intent Extraction Package."""

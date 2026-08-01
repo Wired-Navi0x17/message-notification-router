@@ -1,1 +1,1 @@
-# Classifiers package module
+"""Message Category Classification Package."""

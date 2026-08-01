@@ -1,1 +1,1 @@
-# Package root for Message Notification Router
+"""Source Modules Package for WhatsApp Message Notification Router."""

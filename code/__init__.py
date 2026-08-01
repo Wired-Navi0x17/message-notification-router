@@ -1,1 +1,1 @@
-# Package root for code directory
+"""WhatsApp Message Notification Router Package."""

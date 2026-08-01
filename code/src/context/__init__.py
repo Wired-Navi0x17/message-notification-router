@@ -1,1 +1,1 @@
-# Context enrichment package module
+"""Context Enrichment Engine Package."""

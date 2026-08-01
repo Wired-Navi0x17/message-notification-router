@@ -1,1 +1,1 @@
-# Modalities package module
+"""Multimodal Image OCR & Voice ASR Extractor Package."""
