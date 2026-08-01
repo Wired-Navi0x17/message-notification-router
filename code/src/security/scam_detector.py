@@ -1,9 +1,10 @@
 """
 Scam and Security Risk Detector for WhatsApp Message Notification Router.
-High-priority security module that detects phishing, OTP theft, and domain spoofs,
+High-priority security module that detects phishing, OTP theft, prompt injection, and domain spoofs,
 enforcing an instant 'mute' override to protect users.
 """
 
+import re
 from pydantic import BaseModel
 from code.src.data.models import Message, ActionType, MessageType
 from code.src.context.builder import EnrichedContext
@@ -32,33 +33,41 @@ class ScamDetector:
         risk_score = 0.0
         reasons = []
 
-        # 1. OTP Theft / Sensitive Credentials Request
-        if "enter otp" in text_lower or "share otp" in text_lower or "verification code" in text_lower:
-            risk_score += 0.6
-            reasons.append("Requests sensitive OTP or verification credentials.")
+        # 1. Prompt Injection Attack Detection
+        if any(pat in text_lower for pat in ["ignore all previous", "ignore previous instructions", "mark this message as notify", "system prompt"]):
+            return ScamRiskAssessment(
+                is_scam=True,
+                risk_score=1.0,
+                override_action="mute",
+                override_message_type="scam",
+                reason="Prompt injection attempt detected in message text."
+            )
 
-        # 2. Domain Mismatch / Brand Spoofing
+        # 2. OTP / Password / Login Code Theft
+        if any(pat in text_lower for pat in [
+            "enter otp", "share otp", "confirm password", "login code", "6 digit",
+            "digit login", "verify now at", "profile will be blocked", "workspace access will expire"
+        ]):
+            risk_score += 0.7
+            reasons.append("Requests sensitive OTP, password, or login credentials.")
+
+        # 3. Domain Mismatch / Brand Spoofing
         if context.business_context and context.business_context.is_domain_mismatched:
-            risk_score += 0.5
+            risk_score += 0.6
             reasons.append(
                 f"Sender domain ({context.business_context.domain_used_by_sender}) "
                 f"does not match official brand domain ({context.business_context.official_domain})."
             )
 
-        # 3. Phishing Keywords & Fake Fee Requests
-        if any(w in text_lower for w in ["reattempt fee", "account suspended", "claim prize", "winner", "click link"]):
-            risk_score += 0.4
-            reasons.append("Contains suspicious phishing keywords or fake fee demands.")
+        # 4. Phishing Keywords & Fake Fee Requests
+        if any(w in text_lower for w in ["reattempt fee", "account suspended", "claim prize", "winner", "account-login", "security alert"]):
+            risk_score += 0.5
+            reasons.append("Contains suspicious phishing keywords or fake security alerts.")
 
-        # 4. Unverified Sender asking for Money/OTP
+        # 5. Unverified Sender asking for Money/OTP
         if context.business_context and not context.business_context.is_verified and semantics.is_payment:
-            risk_score += 0.3
+            risk_score += 0.4
             reasons.append("Unverified sender requesting financial payment.")
-
-        # 5. User Reports
-        if context.business_context and context.business_context.user_reports_30d > 5:
-            risk_score += 0.3
-            reasons.append("Sender has high 30-day user report history.")
 
         is_scam = risk_score >= 0.5 or semantics.is_scam_suspicious
 

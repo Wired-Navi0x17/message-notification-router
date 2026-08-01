@@ -10,7 +10,7 @@ Every version milestone represents a stable software increment that runs without
 
 | Phase | Description | Total Milestones | Completed | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **Phase 0** | Foundation & Pipeline Infrastructure | 12 (v0.1 – v0.12) | 9 / 12 | 🔄 In Progress |
+| **Phase 0** | Foundation & Pipeline Infrastructure | 12 (v0.1 – v0.12) | 10 / 12 | 🔄 In Progress |
 | **Phase 1** | Multimodal Understanding & Semantic Layer | 13 (v1.0 – v1.12) | 0 / 13 | ⏳ Pending |
 | **Phase 2** | Decision Engine, Fusion & Optimization | 13 (v2.0 – v2.12) | 0 / 13 | ⏳ Pending |
 
@@ -29,7 +29,7 @@ Every version milestone represents a stable software increment that runs without
 - [x] **v0.6-type-classifier**: Stage 6 — Multi-Class Message Category Classifier (`MessageTypeClassifier` categorizing into the 11 schema categories: `personal`, `urgent`, `event`, `payment`, `business_update`, `promotion`, `greeting`, `forward`, `spam`, `scam`, `unknown`).
 - [x] **v0.7-security-overrides**: Stage 7 — Safety, Security & Risk Override Modules (`ScamDetector` & `SpamDetector` enforcing hard `mute` overrides for phishing, OTP theft, brand domain spoofs, and viral noise).
 - [x] **v0.8-trust-engine**: Stage 8 — Contextual & Behavioral Trust Engine (`BusinessTrustScorer`, `GroupTrustScorer`, `UserPreferenceScorer`, and `PersonalizedTrustEngine`).
-- [ ] **v0.9-decision-fusion**: Stage 9 — Personalization & Decision Fusion Engine.
+- [x] **v0.9-decision-fusion**: Stage 9 — Personalization & Decision Fusion Engine (`PriorityScorer` & `DecisionFusionRouter` fusing security, semantics, trust, and quiet hours into final `notify`, `digest`, `mute` routing actions with 93.3% benchmark accuracy).
 - [ ] **v0.10-confidence-evidence**: Stage 10 — Confidence Calibration & Reason/Evidence Engine.
 - [ ] **v1.0-release-candidate**: Stage 11 — Validation, Benchmark Evaluation & Release Candidate.
 
@@ -47,7 +47,7 @@ Every version milestone represents a stable software increment that runs without
 | **Stage 5** | `v0.5-semantic-engine` | ✅ Completed | `IntentFeatureExtractor` urgency, promo, scam & mention scores | `3d93d2d` | 2026-08-01 |
 | **Stage 6** | `v0.6-type-classifier` | ✅ Completed | `MessageTypeClassifier` classifying 11 schema categories | `01a7230` | 2026-08-01 |
 | **Stage 7** | `v0.7-security-overrides` | ✅ Completed | `ScamDetector` & `SpamDetector` safety overrides | `cbb15e9` | 2026-08-01 |
-| **Stage 8** | `v0.8-trust-engine` | ✅ Completed | `PersonalizedTrustEngine` business, group & user preference scores | Pending Commit | 2026-08-01 |
-| **Stage 9** | `v0.9-decision-fusion` | ⏳ Pending | Action router functional | — | — |
+| **Stage 8** | `v0.8-trust-engine` | ✅ Completed | `PersonalizedTrustEngine` business, group & user preference scores | `26c0e68` | 2026-08-01 |
+| **Stage 9** | `v0.9-decision-fusion` | ✅ Completed | `DecisionFusionRouter` 93.3% benchmark routing accuracy | Pending Commit | 2026-08-01 |
 | **Stage 10**| `v0.10-confidence-evidence`| ⏳ Pending | Calibrated reasons & evidence matched | — | — |
 | **Stage 11**| `v1.0-release-candidate` | ⏳ Pending | Final output.csv & zip package verified | — | — |
