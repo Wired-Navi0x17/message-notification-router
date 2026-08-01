@@ -1,15 +1,23 @@
-# Python Virtual Environment
+# Environment & Virtual Virtualenvs
 .venv/
+env/
 venv/
 ENV/
+env.bak/
+venv.bak/
 
-# Python cache & build outputs
+# Byte-compiled / Python cache
 __pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
+*.so
 
-# OS / IDE files
-.DS_Store
-.vscode/
-.idea/
+# Caches
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Scratch & Archives
+garbage/
+*.log
