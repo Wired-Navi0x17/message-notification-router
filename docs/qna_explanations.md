@@ -124,3 +124,42 @@ Machinery for the voice-note path:
 Why not use audio directly? Speech-to-text lets the same text-based routing, keyword detection (e.g. "urgent", "deadline"), and evidence-matching logic work everywhere, and makes the `reason` column explainable — you can quote what the voice note actually said.
 
 **TL;DR**: Typing = guaranteed-clean data so nothing crashes. Multimodal = the system understands text + images + voice, not just text. Audio = the pipeline that decodes mp3s and transcribes speech so voice notes become analyzable text.
+
+---
+
+## Q4. What am I actually building? (The Big Picture, Simplest Version)
+
+**The whole project in one sentence**: You're building a **robot that reads every WhatsApp message and decides: ring the phone now, save it for later, or throw it away.** Everything else is machinery for that one decision.
+
+### Why it's hard (the "context" problem)
+
+The challenge is designed around one trap: **the same message means different things for different people.**
+
+Take *"Pls pay 500 rupees before 6 PM"*:
+
+- From **Flipkart, after you ordered something** → legit payment reminder → 🔔 **notify**
+- From a **random number pretending to be Flipkart** → scam → 🔕 **mute**
+- From a **group chat at 1 AM** during your quiet hours → 🔇 **digest** (wait until morning)
+
+The message *text* is identical. The **surrounding facts** are what change the answer. Those surrounding facts = **context**. That's the entire point of the project: read the message *and* its context before deciding.
+
+### What each stage builds (car analogy)
+
+Think of it as building a car, one system at a time:
+
+| Stage | What you build | Car analogy |
+|---|---|---|
+| ✅ 0 | Tools + env set up | Buying the garage & tools |
+| ✅ 1 | Clean, typed data layer | Engine parts, sorted & labeled |
+| ✅ 2 | Context engine (dossier per message: DND, business verification, group role) | Fuel + air injection system |
+| ✅ 3 | History retrieval (what happened before? evidence matching) | Rear-view mirror + memory |
+| ⏳ 4 | OCR + voice transcription | Eyes & ears (reading images, hearing voice notes) |
+| ⏳ 5-6 | Understanding + categorizing messages | The brain's pattern recognition |
+| ⏳ 7-8 | Safety rules + trust scores | The danger instincts |
+| ⏳ 9 | Decision fusion (notify/digest/mute) | The steering wheel — makes the final call |
+| ⏳ 10 | Confidence + reasons + evidence | The dashboard display |
+| ⏳ 11 | Final test + package | The final inspection |
+
+### The "aha" to hold onto
+
+You are **not** building a chatbot, a website, or an app. You're building a **pipeline**: raw messages in → enriched with facts → categorized → safety-checked → decided → `output.csv` out. The judge only sees the last step (the CSV). Every stage you finish makes that final decision smarter.
