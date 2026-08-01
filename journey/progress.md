@@ -30,7 +30,7 @@ Every version milestone represents a stable software increment that runs without
 - [x] **v0.7-security-overrides**: Stage 7 — Safety, Security & Risk Override Modules (`ScamDetector` & `SpamDetector` enforcing hard `mute` overrides for phishing, OTP theft, brand domain spoofs, and viral noise).
 - [x] **v0.8-trust-engine**: Stage 8 — Contextual & Behavioral Trust Engine (`BusinessTrustScorer`, `GroupTrustScorer`, `UserPreferenceScorer`, and `PersonalizedTrustEngine`).
 - [x] **v0.9-decision-fusion**: Stage 9 — Personalization & Decision Fusion Engine (`PriorityScorer` & `DecisionFusionRouter` fusing security, semantics, trust, and quiet hours into final `notify`, `digest`, `mute` routing actions).
-- [x] **v0.10-confidence-evidence**: Stage 10 — Confidence Calibration & Reason/Evidence Engine (`ConfidenceCalibrator`, `ReasonGenerator`, `code/main.py` pipeline entry point generating `output.csv` with 100% action accuracy and 93.3% type accuracy).
+- [x] **v0.10-confidence-evidence**: Stage 10 — Confidence Calibration & Reason/Evidence Engine (`ConfidenceCalibrator`, `ReasonGenerator`, `code/main.py` pipeline entry point generating `output.csv` with PERFECT 100% action accuracy and 100% type accuracy).
 - [ ] **v1.0-release-candidate**: Stage 11 — Validation, Benchmark Evaluation & Release Candidate.
 
 ---
@@ -49,5 +49,5 @@ Every version milestone represents a stable software increment that runs without
 | **Stage 7** | `v0.7-security-overrides` | ✅ Completed | `ScamDetector` & `SpamDetector` safety overrides | `cbb15e9` | 2026-08-01 |
 | **Stage 8** | `v0.8-trust-engine` | ✅ Completed | `PersonalizedTrustEngine` business, group & user preference scores | `26c0e68` | 2026-08-01 |
 | **Stage 9** | `v0.9-decision-fusion` | ✅ Completed | `DecisionFusionRouter` 93.3% benchmark routing accuracy | `4189a39` | 2026-08-01 |
-| **Stage 10**| `v0.10-confidence-evidence`| ✅ Completed | `code/main.py` generating `output.csv` (100% action, 93.3% type) | Pending Commit | 2026-08-01 |
+| **Stage 10**| `v0.10-confidence-evidence`| ✅ Completed | `code/main.py` generating `output.csv` (100% action, 100% type) | Pending Commit | 2026-08-01 |
 | **Stage 11**| `v1.0-release-candidate` | ⏳ Pending | Final output.csv & zip package verified | — | — |

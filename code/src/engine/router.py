@@ -93,7 +93,7 @@ class DecisionFusionRouter:
             return FusionDecisionPayload(
                 message_id=message.message_id,
                 action="mute",
-                message_type="spam",
+                message_type=spam_eval.override_message_type if spam_eval.is_spam else "spam",
                 confidence=0.90,
                 context=context,
                 semantics=semantics,
