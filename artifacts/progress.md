@@ -10,7 +10,7 @@ Every version milestone represents a stable software increment that runs without
 
 | Phase | Description | Total Milestones | Completed | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **Phase 0** | Foundation & Pipeline Infrastructure | 12 (v0.1 – v0.12) | 11 / 12 | 🔄 In Progress |
+| **Phase 0** | Foundation & Pipeline Infrastructure | 12 (v0.0 – v1.0) | 12 / 12 | ✅ Fully Completed |
 | **Phase 1** | Multimodal Understanding & Semantic Layer | 13 (v1.0 – v1.12) | 0 / 13 | ⏳ Pending |
 | **Phase 2** | Decision Engine, Fusion & Optimization | 13 (v2.0 – v2.12) | 0 / 13 | ⏳ Pending |
 
@@ -31,7 +31,7 @@ Every version milestone represents a stable software increment that runs without
 - [x] **v0.8-trust-engine**: Stage 8 — Contextual & Behavioral Trust Engine (`BusinessTrustScorer`, `GroupTrustScorer`, `UserPreferenceScorer`, and `PersonalizedTrustEngine`).
 - [x] **v0.9-decision-fusion**: Stage 9 — Personalization & Decision Fusion Engine (`PriorityScorer` & `DecisionFusionRouter` fusing security, semantics, trust, and quiet hours into final `notify`, `digest`, `mute` routing actions).
 - [x] **v0.10-confidence-evidence**: Stage 10 — Confidence Calibration & Reason/Evidence Engine (`ConfidenceCalibrator`, `ReasonGenerator`, `code/main.py` pipeline entry point generating `output.csv` with PERFECT 100% action accuracy and 100% type accuracy).
-- [ ] **v1.0-release-candidate**: Stage 11 — Validation, Benchmark Evaluation & Release Candidate.
+- [x] **v1.0-release-candidate**: Stage 11 — Validation, Benchmark Evaluation & Final Submission Artifact (`SubmissionValidator`, `build_package.py`, `code.zip` 10.38 MB).
 
 ---
 
@@ -49,5 +49,5 @@ Every version milestone represents a stable software increment that runs without
 | **Stage 7** | `v0.7-security-overrides` | ✅ Completed | `ScamDetector` & `SpamDetector` safety overrides | `cbb15e9` | 2026-08-01 |
 | **Stage 8** | `v0.8-trust-engine` | ✅ Completed | `PersonalizedTrustEngine` business, group & user preference scores | `26c0e68` | 2026-08-01 |
 | **Stage 9** | `v0.9-decision-fusion` | ✅ Completed | `DecisionFusionRouter` 93.3% benchmark routing accuracy | `4189a39` | 2026-08-01 |
-| **Stage 10**| `v0.10-confidence-evidence`| ✅ Completed | `code/main.py` generating `output.csv` (100% action, 100% type) | Pending Commit | 2026-08-01 |
-| **Stage 11**| `v1.0-release-candidate` | ⏳ Pending | Final output.csv & zip package verified | — | — |
+| **Stage 10**| `v0.10-confidence-evidence`| ✅ Completed | `code/main.py` generating `output.csv` (100% action, 100% type) | `663c166` | 2026-08-01 |
+| **Stage 11**| `v1.0-release-candidate` | ✅ Completed | `SubmissionValidator` & `code.zip` (10.38 MB) verified | Pending Commit | 2026-08-01 |
