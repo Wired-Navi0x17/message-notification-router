@@ -163,3 +163,41 @@ Think of it as building a car, one system at a time:
 ### The "aha" to hold onto
 
 You are **not** building a chatbot, a website, or an app. You're building a **pipeline**: raw messages in → enriched with facts → categorized → safety-checked → decided → `output.csv` out. The judge only sees the last step (the CSV). Every stage you finish makes that final decision smarter.
+
+---
+
+## Q5. What does the Semantic Intent Engine (Stage 5) do?
+
+Stage 4 gave the system **eyes and ears** (OCR for images, transcription for voice → everything becomes plain text). Stage 5 gives it the **first layer of understanding** — it reads the text and answers: *"What is this message about?"*
+
+It's a **keyword radar**. `code/src/semantics/intent.py` contains 6 keyword lists:
+
+```python
+URGENCY_KEYWORDS    = ["heads-up", "tanker", "water supply", "asap", "immediately", ...]
+PAYMENT_KEYWORDS    = ["payment", "due", "recharge", "fee", "rupees", "otp", ...]
+PROMOTION_KEYWORDS  = ["discount", "% off", "coupon", "promo", "cashback", ...]
+EVENT_KEYWORDS      = ["meeting", "review", "pickup", "driver", "today", "tomorrow", ...]
+GREETING_KEYWORDS   = ["hi", "hello", "congrats", "happy birthday", ...]
+SCAM_KEYWORDS       = ["enter otp", "verify account", "reattempt fee", "click link", ...]
+```
+
+For each incoming message it scans the text, and for each category outputs:
+
+- **`is_urgent` / `is_payment` / `is_promotion` / ...** — boolean flags (True/False)
+- **Matched keywords** — *which* words triggered it (this becomes evidence)
+- **Probability scores** [0.0–1.0] — how strongly it matches
+
+### Test cases (from the report)
+
+| Message | What the radar caught | Flag |
+|---|---|---|
+| "Tower B folks, quick **heads-up**. The **tanker** guy..." | `heads-up`, `tanker` | `is_urgent = True` |
+| "**@u_010** prod review got pulled to 3..." | `@u_010` tag | `has_direct_user_mention = True` |
+| "Get **40% OFF** at INOX..." | `% off` | `is_promotion = True` |
+| "Delivery failed. Pay reattempt fee at amazonpay-delivery.in and **enter OTP**..." | `enter otp`, `reattempt fee` | `is_scam_suspicious = True` |
+
+### Why it matters
+
+Without this, downstream stages would re-read raw text. Now Stage 6 (classifier) and Stage 9 (decision) receive a **pre-digested signal card** per message: *"this is urgent-ish (0.87), payment-ish (0.3), no promo, possible scam (0.92)"*.
+
+**Honest note**: this is **keyword matching, not true ML yet** — fast, deterministic, explainable (the judge likes that), but fooled by phrasing it hasn't seen. Stage 6's classifier and Stage 8's trust engine add the smarter layers.
